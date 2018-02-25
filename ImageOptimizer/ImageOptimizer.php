@@ -49,7 +49,7 @@ class ImageOptimizer
         {
 
         	$after = filesize($path);
-            $percentage = (($before - after) / $before) * 100;
+            $percentage = (($before - $after) / $before) * 100;
 
         	Log::info('Optimized ' . $filename . ' - saved ' . $percentage . '%');
 
