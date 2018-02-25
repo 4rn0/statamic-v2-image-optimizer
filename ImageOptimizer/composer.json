@@ -1,0 +1,11 @@
+{
+    
+    "name": "4rn0/statamic-image-optimizer",
+    
+    "require": {
+
+    	"ps/image-optimizer": "^1.1.2"
+
+    }
+	
+}
