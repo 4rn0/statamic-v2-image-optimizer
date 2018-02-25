@@ -1,4 +1,4 @@
-# statamic-optimize-images
+# statamic-image-optimizer
 Statamic v2 Addon to optimizes new Assets and Glide images
 
 ## Setup
