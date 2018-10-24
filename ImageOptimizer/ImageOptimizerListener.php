@@ -54,7 +54,7 @@ class ImageOptimizerListener extends Listener
             $optimizer = new ImageOptimizer();
 
             $path = $asset->resolvedPath();
-            $path = webroot_path($path);
+            $path = root_path($path);
 
             $optimizer->optimize($path);
 
