@@ -4,6 +4,7 @@ namespace Statamic\Addons\ImageOptimizer;
 
 use Statamic\Addons\ImageOptimizer\ImageOptimizer;
 use Statamic\Events\Data\AssetUploaded;
+use Statamic\Events\Data\AssetReplaced;
 use Statamic\Extend\Listener;
 use Statamic\API\Nav;
 
@@ -18,23 +19,73 @@ class ImageOptimizerListener extends Listener
     public $events = [
 
         
-        'cp.nav.created' => 'addSettingsPage',
+        'cp.add_to_head' => 'handleStyles',
+        'cp.nav.created' => 'handleSettings',
+        'fieldsets.json.show' => 'handleFieldset',
         'glide.generated' => 'handleGlide',
         
-        AssetUploaded::class => 'handleAssets'
+        AssetUploaded::class => 'handleAssets',
+        AssetReplaced::class => 'handleAssets',
 
     ];
 
     /**
-     * Add addon settings page
+     * Return a <link> tag containing the addon stylesheet
      *
-    * @param Statamic\CP\Navigation\Nav $nav
-    */
-    public function addSettingsPage($nav)
+     * @return string
+     */
+    public function handleStyles()
+    {
+        
+        return $this->css->tag('styles');
+
+    }
+
+    /**
+     * Add ImageOptimizer settings page
+     *
+     * @param Statamic\CP\Navigation\Nav $nav
+     */
+    public function handleSettings($nav)
     {
 
-        $store = Nav::item('Optimize')->route('addon.settings', 'image-optimizer')->icon('images');
-        $nav->addTo('tools', $store);
+        $item = Nav::item('Optimizer')->route('addon.settings', 'image-optimizer')->icon('images');
+        $nav->addTo('tools', $item);
+
+    }
+    
+    /**
+     * Add ImageOptimizer fieldtype to assets fieldset
+     *
+     * @param Statamic\CP\Fieldset $fieldset
+     */
+    public function handleFieldset($fieldset)
+    {
+
+        if ($fieldset->name() === 'asset')
+        {
+
+            $sections = $fieldset->sections();
+            $sections['imageoptimizer'] = [
+    
+                'fields' => [
+
+                    'imageoptimizer' => [
+
+                        'type' => 'imageoptimizer'
+
+                    ]
+
+                ]
+
+            ];
+
+            $contents = $fieldset->contents();
+            $contents['sections'] = $sections;
+
+            $fieldset->contents($contents);
+
+        }
 
     }
 
@@ -52,11 +103,7 @@ class ImageOptimizerListener extends Listener
         {
             
             $optimizer = new ImageOptimizer();
-
-            $path = $asset->resolvedPath();
-            $path = root_path($path);
-
-            $optimizer->optimize($path);
+            $optimizer->optimizeAsset($asset);
 
         }
 
@@ -75,9 +122,7 @@ class ImageOptimizerListener extends Listener
         {
 
             $optimizer = new ImageOptimizer();
-            $path = realpath($path);
-
-            $optimizer->optimize($path);
+            $optimizer->optimizePath($path);
 
         }
     	

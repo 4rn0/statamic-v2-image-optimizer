@@ -1,9 +1,13 @@
 fields:
+  statistics:
+    type: imageoptimizer.statistics
+    width: 100
   handle_assets:
     type: toggle
-    width: 50
+    width: 33
   handle_glide:
     type: toggle
-    width: 50
+    width: 33
   log_optimizer:
     type: toggle
+    width: 33

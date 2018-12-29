@@ -42,11 +42,8 @@ class ImageOptimizerCommand extends Command
 
             if ($asset->isImage())
             {
-                
-                $path = $asset->resolvedPath();
-                $path = webroot_path($path);
 
-                $optimizer->optimize($path);
+                $optimizer->optimizeAsset($asset);
 
             }
 

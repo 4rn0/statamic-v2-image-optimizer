@@ -1,0 +1,66 @@
+div[class*="imageoptimizer.statistics-fieldtype"] {
+
+	color: #8f9ca3;
+	padding: 0;
+	
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] label.block {
+
+	display: none !important;
+
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] .section-fieldtype {
+
+	align-items: center;
+
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] .stats {
+
+	align-items: center;
+	display: flex;
+    flex-direction: row;
+
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] .stats .icon {
+
+    font-size: 32px;
+    margin: 0 24px 0 0;
+
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] .progress {
+
+	height: 12px;
+	margin: 0;
+
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] .progress + small {
+
+	display: block;
+	margin-top: 8px;
+
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] .progress-bar {
+
+	transition: width 0.5s ease;
+
+}
+
+div[class*="imageoptimizer.statistics-fieldtype"] .btn {
+
+	margin-left: 12px;
+
+}
+
+div[class*="imageoptimizer-fieldtype"] .help-block a {
+
+	display: inline-block;
+	margin-top: 6px;
+	
+}

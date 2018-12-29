@@ -1,17 +1,8 @@
-# statamic-image-optimizer
-Statamic v2 Addon to optimizes new Assets and Glide images
+# ImageOptimizer
 
-## Setup
+This addon can optimize PNGs, JPGs, and GIFs by running them through various image optimization tools. Just what you needed to get those Google Pagespeed bonus points! 🤘
 
-* Copy the `ImageOptimizer` folder into `site/addons/`.
-* Run `php please update:addons` to install dependencies
+## ImageOptimizer is a commercial addon
+You can use it for free while in development, but it requires a license to use on a live site. Learn more or buy a license on [The Statamic Marketplace](https://statamic.com/marketplace/addons/imageoptimizer)!
 
-The package will uses various image optimization tools if they are present on your system. Please have a look at the documentation on [`psliwa/image-optimizer`](https://github.com/psliwa/image-optimizer#supported-optimizers) and make sure you install them if necessary.
-
-## Settings
-
-You can choose whether to optimize the original Assets, the Glide images or both under `Tools` > `Optimize`
-
-## CLI
-
-Run the `please optimize` command to optimize all your existing image Assets and clear the glide cache.
+*Please note:* this addon possibly requires the installation of various image optimization tools on your server. Have a look at the [documentation](https://statamic.com/marketplace/addons/imageoptimizer/docs) before you decide to buy a license.
