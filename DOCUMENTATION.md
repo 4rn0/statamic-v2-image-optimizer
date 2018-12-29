@@ -1,13 +1,13 @@
-# Setup
+## Setup
 
 * Download and unzip
 * Copy the `ImageOptimizer` folder into `site/addons/`.
 
-# Configuration and usage
+## Configuration and usage
 
 You can view some optimization statistics and choose whether to automatically optimize the original Assets, the Glide images or both under `Tools` > `Optimizer`.
 
-# CLI usage
+## CLI usage
 
 Run the `please optimize` command to optimize all your existing image Assets and clear the glide cache.
 
