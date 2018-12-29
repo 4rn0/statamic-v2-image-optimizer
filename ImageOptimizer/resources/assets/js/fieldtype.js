@@ -13,7 +13,7 @@ var getBytes = {
 
 };
 
-Vue.component('imageoptimizer-fieldtype', {
+Vue.component('image_optimizer-fieldtype', {
 
     mixins: [getBytes],
 
@@ -133,7 +133,7 @@ Vue.component('imageoptimizer-fieldtype', {
 
 });
 
-Vue.component('imageoptimizer-statistics-fieldtype', {
+Vue.component('image_optimizer-statistics-fieldtype', {
 
     mixins: [Fieldtype, getBytes],
 

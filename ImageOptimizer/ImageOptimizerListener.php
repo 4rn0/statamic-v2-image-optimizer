@@ -72,7 +72,7 @@ class ImageOptimizerListener extends Listener
 
                     'imageoptimizer' => [
 
-                        'type' => 'imageoptimizer'
+                        'type' => 'image_optimizer'
 
                     ]
 

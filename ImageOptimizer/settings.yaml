@@ -1,6 +1,6 @@
 fields:
   statistics:
-    type: imageoptimizer.statistics
+    type: image_optimizer.statistics
     width: 100
   handle_assets:
     type: toggle

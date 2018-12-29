@@ -1,7 +1,7 @@
 <?php
 
 namespace Statamic\Addons\ImageOptimizer;
-use Statamic\Api\Asset;
+use Statamic\API\Asset;
 
 trait HasStatistics {
 

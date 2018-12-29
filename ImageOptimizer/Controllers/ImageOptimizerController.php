@@ -5,7 +5,7 @@ namespace Statamic\Addons\ImageOptimizer\Controllers;
 use Statamic\Addons\ImageOptimizer\ImageOptimizer;
 use Statamic\Addons\ImageOptimizer\HasStatistics;
 use Statamic\Extend\Controller;
-use Statamic\Api\Asset;
+use Statamic\API\Asset;
 use Illuminate\Http\Request;
 
 class ImageOptimizerController extends Controller
