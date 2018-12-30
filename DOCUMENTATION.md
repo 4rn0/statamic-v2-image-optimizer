@@ -1,7 +1,7 @@
 ## Setup
 
-* Download and unzip
-* Copy the `ImageOptimizer` folder into `site/addons/`.
+- Download and unzip
+- Copy the `ImageOptimizer` folder into `site/addons/`.
 
 ## Configuration and usage
 
@@ -20,7 +20,7 @@ The addon will use the following optimizers if they are available on your system
 - [Pngquant 2](https://pngquant.org/)
 - [Gifsicle](http://www.lcdf.org/gifsicle/)
 
-It will try to find the executables in the following paths on your system:
+It will try to find the executables in the following paths on your server:
 
     /usr/local
     /usr/local/bin
@@ -30,7 +30,10 @@ It will try to find the executables in the following paths on your system:
     /usr/local/sbin
     /bin
     /sbin
-    ~/bin
+
+**Sounds pretty technical, huh? Don't worry: ImageOptimizer comes with batteries included!** 🔋⚡ 
+
+The addon includes precompiled versions of these optimizers for Linux, MacOS and Windows. If an optimizer is not available on your server it will try to use the included version. This will work with most servers and configurations, but if for some reason it doesn't, you can always try to install the optimizers yourself.
 
 Here's how to install all the optimizers on Ubuntu:
 

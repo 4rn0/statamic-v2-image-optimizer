@@ -161,7 +161,7 @@ class ImageOptimizer
     private function findBinary($name)
     {
 
-        return (new ExecutableFinder())->find($name, $name, [
+        return (new ExecutableFinder())->find($name, $this->findBundledBinary($name), [
 
             '/usr/local',
             '/usr/local/bin',
@@ -170,10 +170,37 @@ class ImageOptimizer
             '/usr/local/bin',
             '/usr/local/sbin',
             '/bin',
-            '/sbin',
-            '~/bin'
+            '/sbin'
 
         ]);
+
+    }
+
+    private function findBundledBinary($name)
+    {
+
+        $bits = PHP_INT_SIZE * 8;
+        $os = PHP_OS;
+
+        if (in_array($os, ['Linux'])) {
+
+            return realpath($this->getDirectory() . '/bin/linux-' . $bits . '/' . $name);
+
+        }
+
+        if (in_array($os, ['Darwin'])) {
+
+            return realpath($this->getDirectory() . '/bin/mac-' . $bits . '/' . $name);
+
+        }
+
+        if (in_array($os, ['WIN32', 'WINNT', 'Windows'])) {
+
+            return realpath($this->getDirectory() . '/bin/win-' . $bits . '/' . $name . '.exe');
+
+        }
+
+        return $name;
 
     }
 
