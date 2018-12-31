@@ -4,7 +4,7 @@ namespace Statamic\Addons\ImageOptimizer\Commands;
 
 use Statamic\Addons\ImageOptimizer\ImageOptimizer;
 use Statamic\Extend\Command;
-use Statamic\Api\Asset;
+use Statamic\API\Asset;
 
 class ImageOptimizerCommand extends Command
 {
