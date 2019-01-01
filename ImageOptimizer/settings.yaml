@@ -8,6 +8,32 @@ fields:
   handle_glide:
     type: toggle
     width: 33
-  log_optimizer:
+  advanced:
     type: toggle
     width: 33
+  optimizers:
+    type: grid
+    display: Optimizers
+    show_when:
+      advanced: true
+    add_row: Add new optimizer
+    mode: table
+    fields:
+      mimetype:
+        type: select
+        display: Type
+        default: image/jpeg
+        options:
+          image/jpeg: image/jpeg
+          image/png: image/png
+          image/gif: image/gif
+      executable:
+        type: text
+        display: Executable
+        placeholder: /usr/local/bin/jpegoptim
+        validate: required
+      arguments:
+        type: text
+        display: Arguments
+        placeholder: --strip-all --all-progressive -m85
+        validate: required

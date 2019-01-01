@@ -11,26 +11,39 @@ use Statamic\Assets\Asset;
 class ImageOptimizer
 {
 
-	use Extensible;
+    use Extensible;
 
     private $optimizers = [
 
-        'image/jpeg' => [
+        [
 
-            'jpegoptim' => ['--strip-all', '--all-progressive', '-m85']
-
-        ],
-
-        'image/gif' => [
-
-            'gifsicle' => ['-b', '-O3']
+            'mimetype'   => 'image/jpeg',
+            'executable' => 'jpegoptim',
+            'arguments'  => '--strip-all --all-progressive -m85'
 
         ],
 
-        'image/png' => [
+        [
 
-            'pngquant' => ['--force', '--output=%s'], 
-            'optipng' => ['-i0', '-o2']
+            'mimetype'   => 'image/gif',
+            'executable' => 'gifsicle',
+            'arguments'  => '-b -O3'
+
+        ],
+
+        [
+
+            'mimetype'   => 'image/png',
+            'executable' => 'pngquant',
+            'arguments'  => '--force --output=%s'
+
+        ],
+
+        [
+
+            'mimetype'   => 'image/png',
+            'executable' => 'optipng',
+            'arguments'  => '-i0 -o2'
 
         ]
 
@@ -42,8 +55,8 @@ class ImageOptimizer
      * @param Statamic\Assets\Asset $asset
      * @return Statamic\Assets\Asset $asset
      */
-	public function optimizeAsset(Asset $asset)
-	{
+    public function optimizeAsset(Asset $asset)
+    {
 
         $path = root_path( $asset->resolvedPath() );
         $path = realpath($path);
@@ -58,7 +71,10 @@ class ImageOptimizer
 
         }
 
-        $filesize = $this->optimizePath($path);
+        $this->optimizePath($path);
+        clearstatcache(true, $path);
+
+        $filesize = filesize($path);
         $data['current_size'] = $filesize;
 
         $asset->set('imageoptimizer', $data);
@@ -66,23 +82,24 @@ class ImageOptimizer
 
         return $asset;
 
-	}
+    }
 
     /**
      * Optimize image by path, save statistics
      *
      * @param string $path
-     * @return int $filesize
      */
     public function optimizePath($path)
     {
 
         $path = realpath($path);
         
-        $this->attemptOptimization($path);
-        clearstatcache(true, $path);
+        if (file_exists($path))
+        {
 
-        return filesize($path);
+            $this->attemptOptimization($path);
+
+        }
 
     }
 
@@ -94,17 +111,18 @@ class ImageOptimizer
     private function attemptOptimization($path)
     {
 
+        $optimizers = $this->getConfig('advanced') ? $this->getConfig('optimizers', []) : $this->optimizers;
         $filetype = mime_content_type($path);
 
-        if (array_key_exists($filetype, $this->optimizers))
+        foreach ($optimizers as $optimizer)
         {
 
-            foreach ($this->optimizers[$filetype] as $name => $options)
+            if ($optimizer['mimetype'] === $filetype)
             {
 
                 $this->optimize( 
 
-                    $this->getCommand($name, $options, $path)
+                    $this->getCommand($optimizer['executable'], $optimizer['arguments'], $path)
 
                 );
 
@@ -115,37 +133,17 @@ class ImageOptimizer
     }
 
     /**
-     * Execute optimizer command
-     *
-     * @param string $command
-     */
-    private function optimize($command)
-    {
-        
-        $process = new Process($command);
-
-        $process->setTimeout(60);
-        $process->enableOutput();
-        $process->run();
-
-        $this->logger( !$process->isSuccessful() ? $process->getErrorOutput() : $process->getOutput() );
-
-    }
-
-    /**
      * Create optimizer command
      *
-     * @param string $name
-     * @param array $options
+     * @param string $executable
+     * @param string $arguments
      * @param string $path
      * @return string $command
      */
-    private function getCommand($name, $options, $path)
+    private function getCommand($executable, $arguments, $path)
     {
 
-        $binary = $this->findBinary($name);
-
-        $arguments = implode(' ', $options);
+        $binary = !$this->getConfig('advanced') ? $this->findBinary($executable) : $executable;
         $arguments = sprintf($arguments, escapeshellarg($path));
 
         return "\"{$binary}\" {$arguments} " . escapeshellarg($path);
@@ -205,17 +203,23 @@ class ImageOptimizer
     }
 
     /**
-     * Write to log if addon is configured to do so
+     * Execute optimizer command
      *
-     * @param string $message
+     * @param string $command
      */
-    private function logger($message)
+    private function optimize($command)
     {
+        
+        $process = new Process($command);
 
-        if ($this->getConfig('log_optimizer', true) && $message)
+        $process->setTimeout(60);
+        $process->enableOutput();
+        $process->run();
+
+        if (!$process->isSuccessful())
         {
 
-            Log::info($message);
+            Log::info( $process->getErrorOutput() );
 
         }
 

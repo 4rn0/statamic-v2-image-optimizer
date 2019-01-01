@@ -1,3 +1,20 @@
 handle_assets: true
 handle_glide: true
-log_optimizer: false
+advanced: false
+optimizers:
+  -
+    mimetype: image/jpeg
+    executable: /usr/local/bin/jpegoptim
+    arguments: --strip-all --all-progressive -m85
+  -
+    mimetype: image/png
+    executable: /usr/local/bin/pngquant
+    arguments: --force --output=%s
+  -
+    mimetype: image/png
+    executable: /usr/local/bin/optipng
+    arguments: -i0 -o2
+  -
+    mimetype: image/gif
+    executable: /usr/local/bin/gifsicle
+    arguments: -b -O3
