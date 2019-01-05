@@ -196,24 +196,21 @@ class ImageOptimizer
     private function findBundledBinary($name)
     {
 
-        $bits = PHP_INT_SIZE * 8;
-        $os = PHP_OS;
+        if (in_array(PHP_OS, ['Linux'])) {
 
-        if (in_array($os, ['Linux'])) {
-
-            return realpath($this->getDirectory() . '/bin/linux-' . $bits . '/' . $name);
+            return realpath($this->getDirectory() . '/bin/linux/' . $name);
 
         }
 
-        if (in_array($os, ['Darwin'])) {
+        if (in_array(PHP_OS, ['Darwin'])) {
 
-            return realpath($this->getDirectory() . '/bin/mac-' . $bits . '/' . $name);
+            return realpath($this->getDirectory() . '/bin/mac/' . $name);
 
         }
 
-        if (in_array($os, ['WIN32', 'WINNT', 'Windows'])) {
+        if (in_array(PHP_OS, ['WIN32', 'WINNT', 'Windows'])) {
 
-            return realpath($this->getDirectory() . '/bin/win-' . $bits . '/' . $name . '.exe');
+            return realpath($this->getDirectory() . '/bin/win/' . $name . '.exe');
 
         }
 
