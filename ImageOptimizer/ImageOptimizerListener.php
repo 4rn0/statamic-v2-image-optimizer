@@ -120,7 +120,7 @@ class ImageOptimizerListener extends Listener
 
         if ($this->getConfig('handle_glide', true))
         {
-
+            
             $optimizer = new ImageOptimizer();
             $optimizer->optimizePath($path);
 

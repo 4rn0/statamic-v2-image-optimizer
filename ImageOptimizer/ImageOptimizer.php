@@ -11,7 +11,7 @@ use Statamic\Assets\Asset;
 class ImageOptimizer
 {
 
-    use Extensible;
+	use Extensible;
 
     private $optimizers = [
 
@@ -35,7 +35,7 @@ class ImageOptimizer
 
             'mimetype'   => 'image/png',
             'executable' => 'pngquant',
-            'arguments'  => '--force --output=%s'
+            'arguments'  => '--force --output=:file'
 
         ],
 
@@ -55,8 +55,8 @@ class ImageOptimizer
      * @param Statamic\Assets\Asset $asset
      * @return Statamic\Assets\Asset $asset
      */
-    public function optimizeAsset(Asset $asset)
-    {
+	public function optimizeAsset(Asset $asset)
+	{
 
         $path = root_path( $asset->resolvedPath() );
         $path = realpath($path);
@@ -82,7 +82,7 @@ class ImageOptimizer
 
         return $asset;
 
-    }
+	}
 
     /**
      * Optimize image by path, save statistics
@@ -120,11 +120,27 @@ class ImageOptimizer
             if ($optimizer['mimetype'] === $filetype)
             {
 
-                $this->optimize( 
+                $tempfile = strpos($optimizer['arguments'], ':temp') !== false;
 
-                    $this->getCommand($optimizer['executable'], $optimizer['arguments'], $path)
+                $command = $this->getCommand($optimizer['executable'], $optimizer['arguments'], $path);
+                $command = str_replace(':file', escapeshellarg($path), $command);
 
-                );
+                if ($tempfile)
+                {
+
+                    $temp = tempnam(sys_get_temp_dir(), 'imageoptimizer');
+                    $command = str_replace(':temp', escapeshellarg($temp), $command);
+
+                }
+
+                $result = $this->optimize($command);
+
+                if ($tempfile)
+                {
+
+                    rename($temp, $path);
+
+                }
 
             }
 
@@ -144,9 +160,9 @@ class ImageOptimizer
     {
 
         $binary = !$this->getConfig('advanced') ? $this->findBinary($executable) : $executable;
-        $arguments = sprintf($arguments, escapeshellarg($path));
+        $command = "\"{$binary}\" {$arguments} " . escapeshellarg($path);
 
-        return "\"{$binary}\" {$arguments} " . escapeshellarg($path);
+        return $command;
 
     }
 
@@ -159,7 +175,10 @@ class ImageOptimizer
     private function findBinary($name)
     {
 
-        return (new ExecutableFinder())->find($name, $this->findBundledBinary($name), [
+        $finder = new ExecutableFinder();
+        $default = $this->findBundledBinary($name);
+
+        return $finder->find($name, $default, [
 
             '/usr/local',
             '/usr/local/bin',
@@ -206,22 +225,34 @@ class ImageOptimizer
      * Execute optimizer command
      *
      * @param string $command
+     * @return bool $result
      */
     private function optimize($command)
     {
-        
+    
+        Log::info('Starting optimization: ' . $command);
+
         $process = new Process($command);
 
         $process->setTimeout(60);
         $process->enableOutput();
         $process->run();
 
-        if (!$process->isSuccessful())
+        if ($process->isSuccessful())
         {
 
-            Log::info( $process->getErrorOutput() );
+            Log::info( $process->getOutput() );
 
         }
+
+        else
+        {
+
+            Log::error( $process->getErrorOutput() );
+
+        }
+
+        return $process->isSuccessful();
 
     }
 

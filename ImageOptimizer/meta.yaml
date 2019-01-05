@@ -1,5 +1,5 @@
 name: Image Optimizer
-version: "2.0.4"
+version: "2.0.5"
 description: Optimizes new Asset and Glide images
 developer: 4rn0
 developer_url: https://github.com/4rn0/statamic-image-optimizer

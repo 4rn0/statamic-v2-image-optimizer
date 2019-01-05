@@ -9,7 +9,7 @@ return [
     'advanced' => 'Advanced settings?',
     'advanced_instruct' => 'Enable this to configure custom image optimizers and configuration.',
     'optimizers' => 'Custom image optimizers and configuration',
-    'optimizers_instruct' => 'You can configure your own image optimizers here. Please make sure the path to the executable and the arguments are correct. Refer to the <a href="https://statamic.com/marketplace/addons/imageoptimizer/docs#optimization-tools" target="_blank">documentaton</a> for instructions on installing your own tools.',
+    'optimizers_instruct' => 'You can configure your own image optimizers here. Please make sure the path to the executable and the arguments are correct. You can use <code>:file</code> to reference the full path to the image you are optimizing and <code>:temp</code> to use a temporary output file.',
 
     'original' => 'The original size was',
     'not-optimized' => 'This image has not been optimized yet',

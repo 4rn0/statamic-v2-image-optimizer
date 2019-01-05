@@ -9,7 +9,7 @@ optimizers:
   -
     mimetype: image/png
     executable: /usr/local/bin/pngquant
-    arguments: --force --output=%s
+    arguments: --force --output=:file
   -
     mimetype: image/png
     executable: /usr/local/bin/optipng

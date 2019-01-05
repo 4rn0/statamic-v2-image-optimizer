@@ -52,3 +52,15 @@ brew install optipng
 brew install pngquant
 brew install gifsicle
 ```
+
+## Customization
+
+Aside from using the included optimizers it is also possible to change their default configuration or add some custom optimization tools like MozJPEG or cwebp by enabling the advanced settings. For each optimizer you will have to provide the mimetype of the images you want it to optimizer, the path to the executable on your server and the arguments the tool needs.
+
+Please make sure the path to the executable and the arguments are correct. You can use :file to reference the full path to the image you are optimizing and :temp to use a temporary output file if the optimizer requires it.
+
+For example, if you would like to use MozJPEG you could enter the following:
+
+| Type | Executable | Arguments | 
+| --- | --- | | --- |
+image/jpeg | /usr/local/mozjpeg/bin/cjpeg | -quality 85 -optimize -outfile :temp | 

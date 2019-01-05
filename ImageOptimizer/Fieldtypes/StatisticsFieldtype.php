@@ -19,4 +19,11 @@ class StatisticsFieldtype extends Fieldtype
 
     }
 
+    public function process($data)
+    {
+        
+        return [];
+
+    }
+
 }

@@ -30,10 +30,10 @@ fields:
       executable:
         type: text
         display: Executable
-        placeholder: /usr/local/bin/jpegoptim
+        placeholder: /usr/local/opt/mozjpeg/bin/cjpeg
         validate: required
       arguments:
         type: text
         display: Arguments
-        placeholder: --strip-all --all-progressive -m85
+        placeholder: -quality 85 -optimize -outfile :temp
         validate: required
