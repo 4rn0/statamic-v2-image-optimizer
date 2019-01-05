@@ -61,6 +61,6 @@ Please make sure the path to the executable and the arguments are correct. You c
 
 For example, if you would like to use MozJPEG you could enter the following:
 
-| Type | Executable | Arguments | 
-| --- | --- | | --- |
-image/jpeg | /usr/local/mozjpeg/bin/cjpeg | -quality 85 -optimize -outfile :temp | 
+Type | Executable | Arguments
+--- | --- | ---
+image/jpeg | /usr/local/mozjpeg/bin/cjpeg | -quality 85 -optimize -outfile :temp
