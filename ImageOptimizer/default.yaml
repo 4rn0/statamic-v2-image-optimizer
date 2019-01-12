@@ -4,17 +4,13 @@ advanced: false
 optimizers:
   -
     mimetype: image/jpeg
-    executable: /usr/local/bin/jpegoptim
-    arguments: --strip-all --all-progressive -m85
+    command: /usr/local/bin/jpegoptim --strip-all --all-progressive -m85 :file
   -
     mimetype: image/png
-    executable: /usr/local/bin/pngquant
-    arguments: --force --output=:file
+    command: /usr/local/bin/pngquant --force --output=:file
   -
     mimetype: image/png
-    executable: /usr/local/bin/optipng
-    arguments: -i0 -o2
+    command: /usr/local/bin/optipng -i0 -o2 :file
   -
     mimetype: image/gif
-    executable: /usr/local/bin/gifsicle
-    arguments: -b -O3
+    command: /usr/local/bin/gifsicle -b -O3 :file

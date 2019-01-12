@@ -27,13 +27,8 @@ fields:
           image/jpeg: image/jpeg
           image/png: image/png
           image/gif: image/gif
-      executable:
+      command:
         type: text
-        display: Executable
-        placeholder: /usr/local/opt/mozjpeg/bin/cjpeg
-        validate: required
-      arguments:
-        type: text
-        display: Arguments
-        placeholder: -quality 85 -optimize -outfile :temp
+        display: Command
+        placeholder: /usr/local/mozjpeg/bin/cjpeg -quality 85 -optimize -outfile :temp :file
         validate: required

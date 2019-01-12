@@ -19,7 +19,7 @@ class ImageOptimizer
 
             'mimetype'   => 'image/jpeg',
             'executable' => 'jpegoptim',
-            'arguments'  => '--strip-all --all-progressive -m85'
+            'arguments'  => '--strip-all --all-progressive -m85 :file'
 
         ],
 
@@ -27,7 +27,7 @@ class ImageOptimizer
 
             'mimetype'   => 'image/gif',
             'executable' => 'gifsicle',
-            'arguments'  => '-b -O3'
+            'arguments'  => '-b -O3 :file'
 
         ],
 
@@ -43,7 +43,7 @@ class ImageOptimizer
 
             'mimetype'   => 'image/png',
             'executable' => 'optipng',
-            'arguments'  => '-i0 -o2'
+            'arguments'  => '-i0 -o2 :file'
 
         ]
 
@@ -120,10 +120,10 @@ class ImageOptimizer
             if ($optimizer['mimetype'] === $filetype)
             {
 
-                $tempfile = strpos($optimizer['arguments'], ':temp') !== false;
-
-                $command = $this->getCommand($optimizer['executable'], $optimizer['arguments'], $path);
+                $command = !$this->getConfig('advanced') ? $this->getCommand($optimizer['executable'], $optimizer['arguments']) : $optimizer['command'];
                 $command = str_replace(':file', escapeshellarg($path), $command);
+
+                $tempfile = strpos($command, ':temp') !== false;
 
                 if ($tempfile)
                 {
@@ -135,7 +135,7 @@ class ImageOptimizer
 
                 $result = $this->optimize($command);
 
-                if ($tempfile)
+                if ($tempfile && filesize($tempfile))
                 {
 
                     rename($temp, $path);
@@ -153,14 +153,13 @@ class ImageOptimizer
      *
      * @param string $executable
      * @param string $arguments
-     * @param string $path
      * @return string $command
      */
-    private function getCommand($executable, $arguments, $path)
+    private function getCommand($executable, $arguments)
     {
 
-        $binary = !$this->getConfig('advanced') ? $this->findBinary($executable) : $executable;
-        $command = "\"{$binary}\" {$arguments} " . escapeshellarg($path);
+        $binary = $this->findBinary($executable) : $executable;
+        $command = $binary . ' ' . $arguments;
 
         return $command;
 
@@ -193,6 +192,12 @@ class ImageOptimizer
 
     }
 
+    /**
+     * Find bundled binary for optimizer
+     *
+     * @param string $name
+     * @return string $binary
+     */
     private function findBundledBinary($name)
     {
 
