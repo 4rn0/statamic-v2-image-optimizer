@@ -11,43 +11,44 @@ use Statamic\Assets\Asset;
 class ImageOptimizer
 {
 
-	use Extensible;
+    use Extensible;
 
     private $optimizers = [
 
         [
 
-            'mimetype'   => 'image/jpeg',
-            'executable' => 'jpegoptim',
-            'arguments'  => '--strip-all --all-progressive -m85 :file'
+            'mimetype' => 'image/jpeg',
+            'command'  => '{binary:jpegoptim} --strip-all --all-progressive -m85 :file',
 
         ],
 
         [
 
-            'mimetype'   => 'image/gif',
-            'executable' => 'gifsicle',
-            'arguments'  => '-b -O3 :file'
+            'mimetype' => 'image/gif',
+            'command'  => '{binary:gifsicle} -b -O3 :file',
 
         ],
 
         [
 
-            'mimetype'   => 'image/png',
-            'executable' => 'pngquant',
-            'arguments'  => '--force --output=:file'
+            'mimetype' => 'image/png',
+            'command'  => '{binary:pngquant} --force :file --output=:file',
 
         ],
 
         [
 
-            'mimetype'   => 'image/png',
-            'executable' => 'optipng',
-            'arguments'  => '-i0 -o2 :file'
+            'mimetype' => 'image/png',
+            'command'  => '{binary:optipng} -i0 -clobber -o5 :file',
 
         ]
 
     ];
+
+    /*
+     * The temporary file, required by some image optimizers
+     */
+    private $temp = false;
 
     /**
      * Optimize Asset, save metadata
@@ -55,16 +56,15 @@ class ImageOptimizer
      * @param Statamic\Assets\Asset $asset
      * @return Statamic\Assets\Asset $asset
      */
-	public function optimizeAsset(Asset $asset)
-	{
+    public function optimizeAsset(Asset $asset)
+    {
 
-        $path = root_path( $asset->resolvedPath() );
+        $path = root_path($asset->resolvedPath());
         $path = realpath($path);
 
         $data = $asset->get('imageoptimizer', []);
 
-        if (empty($data))
-        {
+        if (empty($data)) {
 
             $filesize = filesize($path);
             $data['original_size'] = $filesize;
@@ -82,7 +82,7 @@ class ImageOptimizer
 
         return $asset;
 
-	}
+    }
 
     /**
      * Optimize image by path, save statistics
@@ -93,9 +93,8 @@ class ImageOptimizer
     {
 
         $path = realpath($path);
-        
-        if (file_exists($path))
-        {
+
+        if (file_exists($path)) {
 
             $this->attemptOptimization($path);
 
@@ -114,35 +113,28 @@ class ImageOptimizer
         $optimizers = $this->getConfig('advanced') ? $this->getConfig('optimizers', []) : $this->optimizers;
         $filetype = mime_content_type($path);
 
-        foreach ($optimizers as $optimizer)
-        {
+        foreach ($optimizers as $optimizer) {
 
-            if ($optimizer['mimetype'] === $filetype)
-            {
-
-                $command = !$this->getConfig('advanced') ? $this->getCommand($optimizer['executable'], $optimizer['arguments']) : $optimizer['command'];
-                $command = str_replace(':file', escapeshellarg($path), $command);
-
-                $tempfile = strpos($command, ':temp') !== false;
-
-                if ($tempfile)
-                {
-
-                    $temp = tempnam(sys_get_temp_dir(), 'imageoptimizer');
-                    $command = str_replace(':temp', escapeshellarg($temp), $command);
-
-                }
-
+            if ($optimizer['mimetype'] === $filetype) {
+                $command = $this->getCommand($optimizer['command'], $path);
                 $result = $this->optimize($command);
 
-                if ($tempfile && filesize($tempfile))
-                {
+                if ($this->temp && $result) {
+                    $size = filesize($this->temp);
 
-                    rename($temp, $path);
+                    if (is_int($size) && filesize($this->temp) > 0) {
+                        rename($this->temp, $path);
+                    }
+                    else {
+                        Log::info("Temp File size was 0 bytes. Please double-check your CLI arguments.");
+                    }
 
                 }
 
             }
+
+            // reset temp path
+            $this->temp = false;
 
         }
 
@@ -151,17 +143,36 @@ class ImageOptimizer
     /**
      * Create optimizer command
      *
-     * @param string $executable
-     * @param string $arguments
-     * @return string $command
+     * @param string $command
+     * @param string $path
+     * @return string
      */
-    private function getCommand($executable, $arguments)
+    private function getCommand($command, $path)
     {
 
-        $binary = $this->findBinary($executable) : $executable;
-        $command = $binary . ' ' . $arguments;
+        // locate binary by using name from {binary:name} placeholder
+        try {
+            preg_match('/{binary:.*?}/', $command, $placeHolder);
+            $binaryName = str_replace(['{binary:', '}'], '', $placeHolder[0]);
+            $binary = $this->findBinary($binaryName);
+        } catch (\Exception $e) {
+            Log::info($e);
+            exit(1);
+        }
 
-        return $command;
+        // build command & replace placeholders
+        $exec = str_replace($placeHolder[0], $binary, $command);
+        $exec = preg_replace('/:file?/', escapeshellarg($path), $exec);
+        $tempfile = strpos($exec, ':temp') !== false;
+
+        if ($tempfile) {
+
+            $this->temp = tempnam(sys_get_temp_dir(), 'imageoptimizer');
+            $exec = preg_replace('/:temp?/', escapeshellarg($this->temp), $exec);
+
+        }
+
+        return trim($exec);
 
     }
 
@@ -169,15 +180,18 @@ class ImageOptimizer
      * Find executable binary for optimizer
      *
      * @param string $name
-     * @return string $binary
+     * @return string $binary | bool false
+     *
+     * @throws \Exception
      */
     private function findBinary($name)
     {
 
         $finder = new ExecutableFinder();
-        $default = $this->findBundledBinary($name);
+        $exe = basename($name);
+        $default = $this->findBundledBinary($exe);
 
-        return $finder->find($name, $default, [
+        $binary = $finder->find($exe, $default, [
 
             '/usr/local',
             '/usr/local/bin',
@@ -190,14 +204,14 @@ class ImageOptimizer
 
         ]);
 
+        if ( ! $binary) {
+            throw new \Exception("Binary {$name} doesn't exist on your system, please install.");
+        }
+
+        return $binary;
+
     }
 
-    /**
-     * Find bundled binary for optimizer
-     *
-     * @param string $name
-     * @return string $binary
-     */
     private function findBundledBinary($name)
     {
 
@@ -231,7 +245,7 @@ class ImageOptimizer
      */
     private function optimize($command)
     {
-    
+
         Log::info('Starting optimization: ' . $command);
 
         $process = new Process($command);
@@ -240,17 +254,15 @@ class ImageOptimizer
         $process->enableOutput();
         $process->run();
 
-        if ($process->isSuccessful())
-        {
+        if ($process->isSuccessful()) {
 
-            Log::info( $process->getOutput() );
+            Log::info($process->getOutput());
 
         }
 
-        else
-        {
+        else {
 
-            Log::error( $process->getErrorOutput() );
+            Log::error($process->getErrorOutput());
 
         }
 
