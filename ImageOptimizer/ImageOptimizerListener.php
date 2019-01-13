@@ -2,7 +2,6 @@
 
 namespace Statamic\Addons\ImageOptimizer;
 
-use Statamic\Config\Settings;
 use Statamic\Events\Data\AssetUploaded;
 use Statamic\Events\Data\AssetReplaced;
 use Statamic\Extend\Listener;
@@ -28,14 +27,6 @@ class ImageOptimizerListener extends Listener
         AssetReplaced::class => 'handleAssets',
 
     ];
-
-    private $settings;
-    private $cachePrefix = 'imageoptimizer_';
-
-    function __construct(Settings $settings)
-    {
-        $this->settings = $settings;
-    }
 
     /**
      * Return a <link> tag containing the addon stylesheet
@@ -129,32 +120,8 @@ class ImageOptimizerListener extends Listener
         if ($this->getConfig('handle_glide', true))
         {
 
-            // workaround for bug: https://github.com/statamic/v2-hub/issues/2317
-            // correct path to asset if "Serve cached images directly" is activated.
-            $serveDirect = $this->settings->get('assets.image_manipulation_cached');
-            $cachedPath = $this->settings->get('assets.image_manipulation_cached_path');
-            if ($serveDirect && $cachedPath != 'local/cache/glide' && strpos($path, 'local/cache/glide') !== false)
-            {
-                $path = str_replace('local/cache/glide', trim($cachedPath, '/'), $path);
-            }
-
-            // only continue if image asset hasn't been optimized yet
-            // we don't want to have these expensive operations run on every request.
-            $cacheKey = $this->cachePrefix . pathinfo($path)['filename'];
-            if ($this->cache->exists($cacheKey)) {
-                $lastModified = $this->cache->get($cacheKey);
-
-                // only continue if last modified timestamp differs
-                if (filemtime($path) == $lastModified) {
-                    return;
-                }
-            }
-
             $optimizer = new ImageOptimizer();
-            $optimizer->optimizePath($path);
-
-            // write last optimized image asset to cache
-            $this->cache->put($cacheKey, filemtime($path));
+            $optimizer->optimizeGlide($path);
 
         }
     	

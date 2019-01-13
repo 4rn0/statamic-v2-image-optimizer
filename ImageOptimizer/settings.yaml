@@ -29,6 +29,6 @@ fields:
           image/gif: image/gif
       command:
         type: text
-        display: CLI Command
-        placeholder: "{binary:cjpeg} -quality 75 -optimize -progressive :file >:temp"
+        display: Command
+        placeholder: /usr/local/mozjpeg/bin/cjpeg -quality 85 -optimize -outfile :temp :file
         validate: required
