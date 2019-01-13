@@ -2,7 +2,7 @@
 
 namespace Statamic\Addons\ImageOptimizer;
 
-use Statamic\Addons\ImageOptimizer\ImageOptimizer;
+use Statamic\Config\Settings;
 use Statamic\Events\Data\AssetUploaded;
 use Statamic\Events\Data\AssetReplaced;
 use Statamic\Extend\Listener;
@@ -28,6 +28,13 @@ class ImageOptimizerListener extends Listener
         AssetReplaced::class => 'handleAssets',
 
     ];
+
+    private $settings;
+
+    function __construct(Settings $settings)
+    {
+        $this->settings = $settings;
+    }
 
     /**
      * Return a <link> tag containing the addon stylesheet
@@ -117,6 +124,15 @@ class ImageOptimizerListener extends Listener
      */
     public function handleGlide($path, $params)
     {
+
+        // workaround for bug: https://github.com/statamic/v2-hub/issues/2317
+        // correct path to asset if "Serve cached images directly" is activated.
+        $serveDirect = $this->settings->get('assets.image_manipulation_cached');
+        $cachedPath = $this->settings->get('assets.image_manipulation_cached_path');
+        if ($serveDirect && $cachedPath != 'local' && strpos($path, 'local/cache/glide') !== false)
+        {
+            $path = realpath(str_replace('local/cache/glide', trim($cachedPath, '/'), $path));
+        }
 
         if ($this->getConfig('handle_glide', true))
         {
