@@ -4,13 +4,13 @@ advanced: false
 optimizers:
   -
     mimetype: image/jpeg
-    command: /usr/local/bin/jpegoptim --strip-all --all-progressive -m85 :file
+    command: "{binary:jpegoptim} --strip-all --all-progressive -m85 :file"
   -
     mimetype: image/png
-    command: /usr/local/bin/pngquant --force --output=:file
+    command: "{binary:pngquant} --force :file --output=:file"
   -
     mimetype: image/png
-    command: /usr/local/bin/optipng -i0 -o2 :file
+    command: "{binary:optipng} -i0 -clobber -o5 :file"
   -
     mimetype: image/gif
-    command: /usr/local/bin/gifsicle -b -O3 :file
+    command: "{binary:gifsicle} -b -O3 :file"

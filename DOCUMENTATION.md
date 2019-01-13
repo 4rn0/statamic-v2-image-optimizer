@@ -57,10 +57,11 @@ brew install gifsicle
 
 Aside from using the included optimizers it is also possible to change their default configuration or add some custom optimization tools like MozJPEG or cwebp by enabling the advanced settings. For each optimizer you will have to provide the mimetype of the images you want it to optimize and the command you would like to run on the server.
 
-Please make sure the path to the executable and the arguments are correct. You can use `:file` to reference the full path to the image you are optimizing and `:temp` to use a temporary output file if the optimizer requires it. The contents of the `:temp` file will automatically be copied back to the original file after the optimization.
+Please make sure the name of the executable and the arguments are correct. You can use `{binary:executable_name}` where `executable_name` has to be the correct name, you don't need to set a path to the executable, just the name.  
+Furthermore you can use `:file` to reference the full path to the original image you are optimizing and `:temp` to use a temporary output file if the optimizer requires it. The contents of the `:temp` file will automatically be copied back to the original file after the optimization, therefore overwriting the original.
 
 For example, if you would like to use MozJPEG you could enter the following:
 
 Type | Command
 --- | ---
-image/jpeg | /usr/local/mozjpeg/bin/cjpeg -quality 85 -optimize -outfile :temp :file
+image/jpeg | {binary:cjpeg} -quality 50 -optimize -progressive :file >:temp

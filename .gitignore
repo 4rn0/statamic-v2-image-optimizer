@@ -7,3 +7,4 @@ mix-manifest.json
 webpack.config.js
 webpack.mix.js
 yarn.lock
+.idea
