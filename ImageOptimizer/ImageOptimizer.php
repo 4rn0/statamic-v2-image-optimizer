@@ -184,8 +184,8 @@ class ImageOptimizer
                 if ($tempfile)
                 {
 
-                    $temp = tempnam(sys_get_temp_dir(), 'imageoptimizer');
-                    $command = str_replace(':temp', escapeshellarg($temp), $command);
+                    $tempfile = tempnam(sys_get_temp_dir(), 'imageoptimizer');
+                    $command = str_replace(':temp', escapeshellarg($tempfile), $command);
 
                 }
 
@@ -194,7 +194,7 @@ class ImageOptimizer
                 if ($tempfile && filesize($tempfile))
                 {
 
-                    rename($temp, $path);
+                    rename($tempfile, $path);
 
                 }
 
