@@ -36,7 +36,7 @@ class ImageOptimizer
 
             'mimetype'   => 'image/png',
             'executable' => 'pngquant',
-            'arguments'  => '--force --output=:file'
+            'arguments'  => '--force --output=:file :file'
 
         ],
 
