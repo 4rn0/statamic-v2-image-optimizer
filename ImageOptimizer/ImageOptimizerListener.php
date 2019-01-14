@@ -2,7 +2,6 @@
 
 namespace Statamic\Addons\ImageOptimizer;
 
-use Statamic\Addons\ImageOptimizer\ImageOptimizer;
 use Statamic\Events\Data\AssetUploaded;
 use Statamic\Events\Data\AssetReplaced;
 use Statamic\Extend\Listener;
@@ -120,9 +119,9 @@ class ImageOptimizerListener extends Listener
 
         if ($this->getConfig('handle_glide', true))
         {
-            
+
             $optimizer = new ImageOptimizer();
-            $optimizer->optimizePath($path);
+            $optimizer->optimizeGlide($path);
 
         }
     	

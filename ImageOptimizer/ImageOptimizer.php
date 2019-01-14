@@ -6,12 +6,13 @@ use Symfony\Component\Process\ExecutableFinder;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\Log;
 use Statamic\Extend\Extensible;
+use Statamic\Config\Settings;
 use Statamic\Assets\Asset;
 
 class ImageOptimizer
 {
 
-	use Extensible;
+    use Extensible;
 
     private $optimizers = [
 
@@ -35,7 +36,7 @@ class ImageOptimizer
 
             'mimetype'   => 'image/png',
             'executable' => 'pngquant',
-            'arguments'  => '--force --output=:file'
+            'arguments'  => '--force --output=:file :file'
 
         ],
 
@@ -55,16 +56,15 @@ class ImageOptimizer
      * @param Statamic\Assets\Asset $asset
      * @return Statamic\Assets\Asset $asset
      */
-	public function optimizeAsset(Asset $asset)
-	{
+    public function optimizeAsset(Asset $asset)
+    {
 
-        $path = root_path( $asset->resolvedPath() );
+        $path = root_path($asset->resolvedPath());
         $path = realpath($path);
 
         $data = $asset->get('imageoptimizer', []);
 
-        if (empty($data))
-        {
+        if (empty($data)) {
 
             $filesize = filesize($path);
             $data['original_size'] = $filesize;
@@ -82,20 +82,76 @@ class ImageOptimizer
 
         return $asset;
 
-	}
+    }
+
+    /**
+     * Optimize Glide image if necessary
+     *
+     * @param string $path
+     */
+    public function optimizeGlide($path)
+    {
+
+        $path = $this->getRealGlidePath($path);
+        $key  = 'imageoptimizer' . pathinfo($path, PATHINFO_FILENAME);
+
+        if ($this->cache->exists($key))
+        {
+        
+            $optimized = $this->cache->get($key);
+            $modified = filemtime($path);
+
+            if ($modified == $optimized)
+            {
+                
+                return;
+
+            }
+
+        }
+
+        $this->optimizePath($path);
+        $this->cache->put($key, filemtime($path));
+
+    }
+
+    /**
+     * Get actual path to Glide image
+     * Workaround for bug: https://github.com/statamic/v2-hub/issues/2317
+     *
+     * @param string $path
+     * @return string $path
+     */
+    private function getRealGlidePath($path)
+    {
+
+        $settings = app(Settings::class);
+
+        $cachedPath = $settings->get('assets.image_manipulation_cached_path');
+        $cached = $settings->get('assets.image_manipulation_cached');
+        
+        if ($cached && $cachedPath !== 'local/cache/glide' && strpos($path, 'local/cache/glide') !== false)
+        {
+            
+            $path = str_replace('local/cache/glide', trim($cachedPath, '/'), $path);
+
+        }
+
+        $path = realpath($path);
+
+        return $path;
+
+    }
 
     /**
      * Optimize image by path, save statistics
      *
      * @param string $path
      */
-    public function optimizePath($path)
+    private function optimizePath($path)
     {
 
-        $path = realpath($path);
-        
-        if (file_exists($path))
-        {
+        if (file_exists($path)) {
 
             $this->attemptOptimization($path);
 
@@ -128,17 +184,17 @@ class ImageOptimizer
                 if ($tempfile)
                 {
 
-                    $temp = tempnam(sys_get_temp_dir(), 'imageoptimizer');
-                    $command = str_replace(':temp', escapeshellarg($temp), $command);
+                    $tempfile = tempnam(sys_get_temp_dir(), 'imageoptimizer');
+                    $command = str_replace(':temp', escapeshellarg($tempfile), $command);
 
                 }
 
-                $result = $this->optimize($command);
+                $this->optimize($command);
 
                 if ($tempfile && filesize($tempfile))
                 {
 
-                    rename($temp, $path);
+                    rename($tempfile, $path);
 
                 }
 
@@ -158,7 +214,7 @@ class ImageOptimizer
     private function getCommand($executable, $arguments)
     {
 
-        $binary = $this->findBinary($executable) : $executable;
+        $binary = $this->findBinary($executable);
         $command = $binary . ' ' . $arguments;
 
         return $command;
@@ -175,9 +231,11 @@ class ImageOptimizer
     {
 
         $finder = new ExecutableFinder();
-        $default = $this->findBundledBinary($name);
 
-        return $finder->find($name, $default, [
+        $default = $this->findBundledBinary($name);
+        $binary = basename($name);
+
+        return $finder->find($binary, $default, [
 
             '/usr/local',
             '/usr/local/bin',
@@ -192,12 +250,6 @@ class ImageOptimizer
 
     }
 
-    /**
-     * Find bundled binary for optimizer
-     *
-     * @param string $name
-     * @return string $binary
-     */
     private function findBundledBinary($name)
     {
 
@@ -231,7 +283,7 @@ class ImageOptimizer
      */
     private function optimize($command)
     {
-    
+
         Log::info('Starting optimization: ' . $command);
 
         $process = new Process($command);
@@ -240,17 +292,15 @@ class ImageOptimizer
         $process->enableOutput();
         $process->run();
 
-        if ($process->isSuccessful())
-        {
+        if ($process->isSuccessful()) {
 
-            Log::info( $process->getOutput() );
+            Log::info($process->getOutput());
 
         }
 
-        else
-        {
+        else {
 
-            Log::error( $process->getErrorOutput() );
+            Log::error($process->getErrorOutput());
 
         }
 
