@@ -71,7 +71,7 @@ Vue.component('image_optimizer-fieldtype', {
       
         doOptimize: function() {
 
-            var url = '/cp/addons/image-optimizer/optimize';
+            var url = Statamic.cpRoot + '/addons/image-optimizer/optimize';
             var params = { asset: this.asset.id };
 
             this.$http.post(url, params).then(function(response) {
@@ -233,7 +233,7 @@ Vue.component('image_optimizer-statistics-fieldtype', {
 
         doOptimize: function() {
 
-            var url = '/cp/addons/image-optimizer/optimize';
+            var url = Statamic.cpRoot + '/addons/image-optimizer/optimize';
             var params = { asset: this.list[this.index] };
 
             this.$http.post(url, params).then(function(response) {
