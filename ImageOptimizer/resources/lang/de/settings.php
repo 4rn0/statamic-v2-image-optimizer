@@ -15,8 +15,8 @@ return [
     'not-optimized' => 'Dieses Bild wurde noch nicht optimiert',
     'assets' => 'Bilder',
     'reduced' => 'Reduziert um',
-    'optimizing' => 'Optimiert',
-    'optimized' => 'Optimiert',
+    'optimizing' => 'Optimiere',
+    'optimized' => 'Optimiert wurden',
     'empty' => 'Es wurden noch keine Bilder als Asset hochgeladen ...',
 
     'optimize' => 'Optimieren',
